@@ -1,0 +1,882 @@
+/* ==========================================================================
+   Day Moments — template styles
+   Fonts: Quicksand (logo) / Jost (text) / Dancing Script (accent)
+   Structure: bottom arc progress-river nav + five section layouts
+   (ritual / immersive / collage / editorial / nightfall) on a warm-paper
+   day palette with procedural grain + vignette per section.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Quicksand';
+  src: url('/fonts/quicksand-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Quicksand';
+  src: url('/fonts/quicksand-600.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('/fonts/jost-300.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('/fonts/jost-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jost';
+  src: url('/fonts/jost-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dancing Script';
+  src: url('/fonts/dancing-script-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  src: url('/fonts/ma-shan-zheng.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --ink: #362b1d;
+  --logo-font: 'Quicksand', 'PingFang SC', sans-serif;
+  --text-font: 'Jost', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  --script-font: 'Dancing Script', 'Ma Shan Zheng', 'Songti SC', cursive;
+  --mono-font: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  /* Signature easing shared by reveals, the arc, and hover states. */
+  --ease-sig: cubic-bezier(0.22, 0.61, 0.21, 1);
+  /* Vertical clearance reserved for the bottom chrome (arc budget by default;
+     the sundial dock owns a smaller, defined layer) */
+  --arc-clear: 176px;
+}
+:root[data-nav-variant='dock'] { --arc-clear: 88px; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+body {
+  font-family: var(--text-font);
+  font-weight: 400;
+  color: var(--ink);
+  background: #f5efe3;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+ol, ul { list-style: none; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: absolute; top: -60px; left: 16px; z-index: 100;
+  background: var(--ink); color: #fff; padding: 10px 18px; font-size: 13px;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 8px; }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+/* ---------- film grain (static texture, no motion) ---------- */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 35; pointer-events: none; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ---------- scroll reveal (per-layout choreography; signature easing) ---------- */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s var(--ease-sig); }
+.reveal.is-inview { opacity: 1; transform: none; }
+/* layout-specific entrances: images settle (scale/slide), text rises */
+.moment--immersive .moment__img--bg.reveal { transform: scale(1.045); }
+.moment--immersive .moment__img--inset.reveal { transform: translateY(18px) scale(0.96); }
+.moment--collage .moment__img.reveal { transform: translateY(22px) scale(0.92); }
+.moment--editorial .moment__img--main.reveal { transform: translateX(-26px); }
+.moment--editorial .moment__img--secondary.reveal { transform: translateY(16px) scale(0.9); }
+.moment--nightfall .moment__img.reveal { transform: translateY(14px); }
+.moment--ritual .moment__script.reveal { transform: translateY(10px); }
+/* strong reset: beats the layout-specific initial transforms above once in view */
+.moment [data-reveal].is-inview { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- header ---------- */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 22px 36px; pointer-events: none;
+  transition: color 0.45s ease;
+}
+/* soft veil: theme-tinted gradient + backdrop blur, so display titles
+   sliding underneath never collide with the logo */
+.site-header::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 124px;
+  z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, var(--header-veil, rgba(245, 239, 227, 0.6)) 0%, transparent 100%);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header { transition: none; }
+}
+.site-header > * { pointer-events: auto; }
+/* ---------- social entries: "连语" chip / poem / handles / marks ---------- */
+.site-header__social { display: flex; gap: 22px; align-items: center; justify-self: start; }
+/* frosted chip: pill + theme-tinted glass + 1px hairline; expands on hover/focus */
+.social-chip {
+  display: inline-flex; align-items: center; gap: 2px; height: 40px; padding: 0 6px;
+  border-radius: 999px; pointer-events: auto;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px rgba(12, 10, 6, 0.07);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s var(--ease-sig);
+}
+.social-chip__link {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 5px; border-radius: 999px; color: inherit;
+}
+.social-chip__handle {
+  display: inline-flex; max-width: 0; overflow: hidden; white-space: nowrap;
+  font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.1em;
+  opacity: 0.92;
+  transition: max-width 0.5s var(--ease-sig);
+}
+.social-chip__ch {
+  display: inline-block; opacity: 0; transform: translateY(4px);
+  transition: opacity 0.26s ease, transform 0.26s var(--ease-sig);
+}
+.social-chip:hover, .social-chip:focus-within, .social-chip--open {
+  border-color: color-mix(in srgb, currentColor 34%, transparent);
+  box-shadow: 0 10px 26px rgba(12, 10, 6, 0.12);
+  transform: translateY(-1px);
+}
+.social-chip:hover .social-chip__handle,
+.social-chip:focus-within .social-chip__handle,
+.social-chip--open .social-chip__handle { max-width: 132px; }
+.social-chip:hover .social-chip__ch,
+.social-chip:focus-within .social-chip__ch,
+.social-chip--open .social-chip__ch { opacity: 1; transform: none; }
+/* poem: 1px vertical hairline + vertical mono tags */
+.social-poem { display: flex; align-items: stretch; gap: 14px; pointer-events: auto; }
+.social-poem__rule { width: 1px; background: currentColor; opacity: 0.32; transition: opacity 0.35s ease; }
+.social-poem:hover .social-poem__rule, .social-poem:focus-within .social-poem__rule { opacity: 0.6; }
+.social-poem__link {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding-top: 2px; color: inherit;
+  transition: transform 0.35s var(--ease-sig), opacity 0.35s ease;
+}
+.social-poem__handle {
+  writing-mode: vertical-rl; font-family: var(--mono-font); font-size: 9px;
+  letter-spacing: 0.14em; opacity: 0.6; max-height: 84px; overflow: hidden;
+  transition: opacity 0.35s ease;
+}
+.social-poem__link:hover, .social-poem__link:focus-visible { transform: translateX(3px); }
+.social-poem__link:hover .social-poem__handle, .social-poem__link:focus-visible .social-poem__handle { opacity: 0.95; }
+/* plain typographic handles ('handles' mode) */
+.social-link--handle {
+  position: relative; display: inline-flex; align-items: baseline; gap: 8px;
+  padding-bottom: 5px;
+  font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: lowercase; line-height: 1;
+  transition: opacity 0.25s ease, transform 0.25s var(--ease-sig);
+}
+.social-link__site { opacity: 0.6; }
+.social-link__handle { opacity: 0.95; transition: opacity 0.25s ease; }
+.social-link__line {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: currentColor; opacity: 0.85;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.35s var(--ease-sig);
+}
+.social-link--handle:hover { transform: translateY(-1px); }
+.social-link--handle:hover .social-link__line,
+.social-link--handle:focus-visible .social-link__line { transform: scaleX(1); }
+/* refined line marks ('marks' mode) */
+.social-link--mark {
+  width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+  transition: opacity 0.25s, transform 0.25s var(--ease-sig);
+}
+.social-link--mark:hover { opacity: 0.65; transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .social-chip, .social-chip__handle, .social-chip__ch,
+  .social-poem__link, .social-poem__handle, .social-poem__rule,
+  .social-link--handle, .social-link__line, .social-link__handle, .social-link--mark { transition: none; }
+  .social-chip:hover, .social-link--handle:hover, .social-link--mark:hover, .social-poem__link:hover { transform: none; }
+  /* reduced motion: the chip rests in its expanded state */
+  .social-chip__handle { max-width: 132px; }
+  .social-chip__ch { opacity: 1; transform: none; }
+}
+.site-header__logo {
+  font-family: var(--logo-font); font-weight: 500; font-size: 32px; letter-spacing: 0.01em;
+  text-align: center;
+}
+.site-header__right { justify-self: end; width: 38px; }
+
+/* ---------- timeline nav: shared base (dock default / arc fallback) ---------- */
+.timeline-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  pointer-events: none;
+  transition: color 0.45s ease;
+}
+/* ---------- arc variant: bottom arc progress river ---------- */
+.timeline-nav--arc { height: 150px; }
+.timeline-nav--arc::before {
+  content: ''; position: absolute; inset: 20% 0 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, var(--nav-veil, rgba(0, 0, 0, 0.16)) 100%);
+}
+.timeline-nav--arc .timeline-nav__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.timeline-nav--arc .timeline-nav__track { stroke: currentColor; stroke-width: 1; opacity: calc(0.3 * (1 - var(--sunset, 0) * 0.8)); }
+.timeline-nav--arc .timeline-nav__progress {
+  stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+  opacity: calc(1 - var(--sunset, 0) * 0.72);
+  transition: stroke-dashoffset 0.7s var(--ease-sig);
+}
+/* the sun traveller: rides the rail with the day's scroll position */
+.timeline-nav--arc .timeline-nav__sun {
+  fill: currentColor;
+  opacity: calc(0.95 - var(--sunset, 0) * 0.85);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 65%, transparent));
+  transition: cx 0.7s var(--ease-sig), cy 0.7s var(--ease-sig);
+}
+.timeline-nav--arc .timeline-nav__markers { position: absolute; inset: 0; }
+.timeline-nav--arc .timeline-nav__markers li { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+/* sunset: the last marker sinks below the arc as the footer arrives */
+.timeline-nav--arc .timeline-nav__markers li:last-child {
+  transform: translate(-50%, -50%) translateY(calc(var(--sunset, 0) * 24px)) scale(calc(1 - var(--sunset, 0) * 0.25));
+  opacity: calc(1 - var(--sunset, 0) * 0.35);
+}
+.timeline-nav--arc .timeline-nav__markers a {
+  position: relative; width: 36px; height: 36px; pointer-events: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.timeline-nav__dot {
+  width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+  opacity: 0.5; transition: opacity 0.3s ease, transform 0.3s var(--ease-sig), box-shadow 0.3s ease;
+}
+.timeline-nav__markers a:hover .timeline-nav__dot { opacity: 0.9; transform: scale(1.2); }
+.timeline-nav__markers a.is-active .timeline-nav__dot {
+  opacity: 1; transform: scale(1.2);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, currentColor 20%, transparent),
+    0 0 16px color-mix(in srgb, currentColor 60%, transparent);
+}
+.timeline-nav--breathe a.is-active .timeline-nav__dot { animation: nav-breathe 2.6s ease-in-out infinite; }
+@keyframes nav-breathe {
+  0%, 100% { transform: scale(1.12); }
+  50% { transform: scale(1.42); }
+}
+.timeline-nav--arc .timeline-nav__label {
+  position: absolute; bottom: calc(100% - 2px); left: 50%;
+  transform: translate(-50%, 6px); opacity: 0;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-sig);
+}
+.timeline-nav--arc .timeline-nav__markers a.is-active .timeline-nav__label { opacity: 1; transform: translate(-50%, 0); }
+.timeline-nav--arc .timeline-nav__markers li:first-child .timeline-nav__label { left: 0; transform: translate(0, 6px); }
+.timeline-nav--arc .timeline-nav__markers li:first-child a.is-active .timeline-nav__label { transform: translate(0, 0); }
+.timeline-nav--arc .timeline-nav__markers li:last-child .timeline-nav__label { left: auto; right: 0; transform: translate(0, 6px); }
+.timeline-nav--arc .timeline-nav__markers li:last-child a.is-active .timeline-nav__label { transform: translate(0, 0); }
+
+/* ---------- dock variant: "日晷坞" sundial dock ---------- */
+.sundial-dock__inner {
+  position: relative; height: 60px; pointer-events: auto;
+  border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  background: linear-gradient(180deg, transparent 0%, var(--nav-veil) 26%);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 -8px 30px rgba(10, 8, 6, 0.1);
+}
+.sundial-dock--solid .sundial-dock__inner { background: #161b28; }
+.sundial-dock .timeline-nav__markers {
+  position: absolute; inset: 0; margin: 0 auto; width: min(880px, 94%);
+  display: flex; justify-content: space-between; align-items: stretch;
+}
+.sundial-dock .timeline-nav__markers li { flex: 1; display: flex; justify-content: center; pointer-events: none; }
+.sundial-dock .timeline-nav__markers a {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 5px; padding: 12px 6px 8px; pointer-events: auto; color: inherit;
+  min-width: 44px; min-height: 44px; /* touch-friendly stop */
+}
+/* hour stops: a hollow ring idles, half-fills on hover/focus, fills solid when
+   the moment is active — the state progression reads at a glance */
+.sundial-dock .timeline-nav__dot {
+  box-sizing: border-box; width: 9px; height: 9px;
+  background: transparent; border: 1.5px solid currentColor; opacity: 0.55;
+  transition:
+    opacity 0.3s ease, transform 0.35s var(--ease-sig),
+    background-color 0.35s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.sundial-dock .timeline-nav__markers a:hover .timeline-nav__dot,
+.sundial-dock .timeline-nav__markers a:focus-visible .timeline-nav__dot {
+  background: color-mix(in srgb, currentColor 45%, transparent);
+  opacity: 0.9; transform: scale(1.15);
+}
+.sundial-dock .timeline-nav__markers a.is-active .timeline-nav__dot {
+  background: currentColor; border-color: currentColor; opacity: 1; transform: scale(1.15);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, currentColor 18%, transparent),
+    0 0 14px color-mix(in srgb, currentColor 55%, transparent);
+}
+/* every moment label stays readable (≥12px); the active one lights and grows */
+.sundial-dock .timeline-nav__label {
+  display: inline-flex; align-items: baseline; white-space: nowrap;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.88; transform: scale(0.94); transform-origin: center top;
+  text-shadow: 0 0 2px color-mix(in srgb, currentColor 45%, transparent);
+  transition: opacity 0.3s ease, transform 0.35s var(--ease-sig), letter-spacing 0.35s var(--ease-sig);
+}
+.sundial-dock .timeline-nav__markers a:hover .timeline-nav__label,
+.sundial-dock .timeline-nav__markers a:focus-visible .timeline-nav__label { opacity: 1; transform: scale(0.98) translateY(-1px); }
+.sundial-dock .timeline-nav__markers a.is-active .timeline-nav__label { opacity: 1; transform: scale(1.1); letter-spacing: 0.19em; }
+.sundial-dock--sparse .timeline-nav__label { opacity: 0; }
+.sundial-dock--sparse .timeline-nav__markers a.is-active .timeline-nav__label { opacity: 1; }
+/* mobile short label (first character) */
+.sundial-dock__short { display: none; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; }
+/* the rail + fill + sun */
+.sundial-dock__rail { position: absolute; top: 16px; height: 2px; pointer-events: none; }
+.sundial-dock__track {
+  position: absolute; inset: 0; background: currentColor; opacity: calc(0.28 * (1 - var(--sunset, 0) * 0.6));
+}
+.sundial-dock__fill {
+  position: absolute; left: 0; top: -0.5px; height: 3px; border-radius: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, currentColor 42%, transparent) 0%, currentColor 84%);
+  box-shadow: 0 0 6px color-mix(in srgb, currentColor 38%, transparent);
+  opacity: calc(1 - var(--sunset, 0) * 0.72);
+  transition: width 0.7s var(--ease-sig);
+}
+.sundial-dock__sun {
+  position: absolute; top: 17px; width: 12px; height: 12px; border-radius: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%) translateY(calc(var(--sunset, 0) * 26px)) scale(calc(1 - var(--sunset, 0) * 0.3));
+  opacity: calc(0.95 - var(--sunset, 0) * 0.8);
+  box-shadow:
+    0 0 6px color-mix(in srgb, currentColor 70%, transparent),
+    0 0 18px color-mix(in srgb, currentColor 30%, transparent);
+  transition: left 0.7s var(--ease-sig), top 0.7s var(--ease-sig), opacity 0.3s ease;
+}
+/* corona: one slow halo ring breathing off the sun (breathe config gates it) */
+.sundial-dock__sun::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  opacity: 0; transform: scale(0.7); pointer-events: none;
+}
+.timeline-nav--breathe .sundial-dock__sun::after { animation: sun-halo 4.6s ease-out infinite; }
+@keyframes sun-halo {
+  0% { opacity: 0.55; transform: scale(0.72); }
+  70%, 100% { opacity: 0; transform: scale(1.55); }
+}
+.sundial-dock__pulse {
+  position: absolute; top: 17px; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; opacity: 0.55; pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: nav-pulse 1.7s ease-out forwards;
+}
+
+/* ---------- social edge tag ("右缘诗签") ---------- */
+.social-edge {
+  position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 42;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 14px 8px; border-radius: 999px; pointer-events: auto;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px rgba(12, 10, 6, 0.07);
+  transition: color 0.45s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.social-edge:hover, .social-edge:focus-within, .social-edge--open {
+  border-color: color-mix(in srgb, currentColor 34%, transparent);
+  box-shadow: 0 10px 26px rgba(12, 10, 6, 0.12);
+}
+.social-edge__rule { width: 1px; height: 44px; background: currentColor; opacity: 0.32; }
+.social-edge__link { position: relative; display: inline-flex; align-items: center; padding: 4px; color: inherit; }
+.social-edge__handle {
+  position: absolute; right: calc(100% + 10px); top: 50%;
+  transform: translate(10px, -50%); opacity: 0;
+  white-space: nowrap; font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.1em;
+  padding: 7px 12px; border-radius: 9px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 22px rgba(12, 10, 6, 0.14);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.35s var(--ease-sig);
+  transition-delay: calc(var(--edge-i, 0) * 70ms);
+}
+.social-edge:hover .social-edge__handle,
+.social-edge:focus-within .social-edge__handle,
+.social-edge--open .social-edge__handle { opacity: 1; transform: translate(0, -50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-nav { transition: none; }
+  .timeline-nav__progress { transition: none; }
+  .timeline-nav__sun { transition: none; }
+  .timeline-nav--breathe a.is-active .timeline-nav__dot { animation: none; }
+  .timeline-nav__dot, .timeline-nav__label { transition: none; }
+  .sundial-dock .timeline-nav__label, .sundial-dock__fill, .sundial-dock__sun { transition: none; }
+  .timeline-nav--breathe .sundial-dock__sun::after { animation: none; }
+  .social-edge, .social-edge__handle { transition: none; }
+}
+@media (prefers-reduced-motion: reduce) and (min-width: 901px) {
+  /* reduced motion: the edge tag rests with handles visible (static) */
+  .social-edge__handle { opacity: 1; transform: translate(0, -50%); }
+}
+
+/* ---------- moment sections: shared frame ---------- */
+.moment {
+  position: relative; min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 120px 24px calc(var(--arc-clear) + 24px); overflow: hidden;
+}
+.paper-grain { position: absolute; inset: 0; z-index: 4; pointer-events: none; mix-blend-mode: soft-light; }
+.paper-vignette { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+/* incoming blend zone: melts the previous section's outgoing color into this
+   section (sits above images too, so even a full-bleed photograph melts in) */
+.paper-blend { position: absolute; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none; }
+/* outgoing blend zone: pulls the section's bottom edge to the exact outgoing
+   color, so the next section's incoming melt starts from a perfect match */
+.paper-blend-out { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; pointer-events: none; }
+
+/* ---------- quiet-luxury fx layer (each gated by fx-* root class / config) ---------- */
+/* dawn/stars shader backdrop: hand-written WebGL behind the ritual/nightfall
+   sections; CSS gradient twin when WebGL is unavailable */
+.dawn-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; display: block; }
+.dawn-bg--fallback { background-color: var(--dawn-base, transparent); }
+.dawn-bg--fallback.dawn-bg--dawn {
+  background:
+    radial-gradient(48% 40% at 30% 62%, color-mix(in srgb, var(--dawn-a) 52%, transparent), transparent 72%),
+    radial-gradient(42% 36% at 74% 32%, color-mix(in srgb, var(--dawn-b) 46%, transparent), transparent 72%);
+  background-color: var(--dawn-base, transparent);
+  animation: dawn-drift 36s ease-in-out infinite alternate;
+}
+/* first-light mood: gold light pools over the deep base */
+.moment--dawn-dark .dawn-bg--fallback.dawn-bg--dawn {
+  background:
+    radial-gradient(44% 36% at 30% 60%, color-mix(in srgb, var(--dawn-a) 34%, transparent), transparent 70%),
+    radial-gradient(38% 32% at 72% 34%, color-mix(in srgb, var(--dawn-b) 30%, transparent), transparent 70%);
+  background-color: var(--dawn-base, #2f3646);
+}
+.dawn-bg--fallback.dawn-bg--stars {
+  background:
+    radial-gradient(1.6px 1.6px at 22% 30%, color-mix(in srgb, var(--dawn-a) 80%, transparent), transparent 100%),
+    radial-gradient(1.4px 1.4px at 68% 18%, color-mix(in srgb, var(--dawn-a) 70%, transparent), transparent 100%),
+    radial-gradient(1.8px 1.8px at 84% 58%, color-mix(in srgb, var(--dawn-a) 75%, transparent), transparent 100%),
+    radial-gradient(1.3px 1.3px at 45% 74%, color-mix(in srgb, var(--dawn-a) 65%, transparent), transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 42%, color-mix(in srgb, var(--dawn-a) 60%, transparent), transparent 100%),
+    radial-gradient(60% 45% at 40% 20%, color-mix(in srgb, var(--dawn-b) 14%, transparent), transparent 75%);
+  background-repeat: repeat;
+  animation: stars-twinkle 9s ease-in-out infinite alternate;
+}
+@keyframes dawn-drift {
+  from { background-position: 0% 0%, 0% 0%; }
+  to { background-position: 6% -4%, -5% 5%; }
+}
+@keyframes stars-twinkle {
+  from { opacity: 0.75; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dawn-bg--fallback { animation: none; }
+}
+/* ritual readability without a visible罩: the shader's calm mask does the
+   zoning; text gets a soft multi-layer halo tuned to the mood — no geometry,
+   no edges, nothing to see */
+.moment--ritual .moment__title {
+  text-shadow:
+    0 2px 16px color-mix(in srgb, var(--panel) 70%, transparent),
+    0 0 42px color-mix(in srgb, var(--panel) 55%, transparent);
+}
+.moment--ritual .moment__script, .moment--ritual .moment__body {
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--panel) 60%, transparent);
+}
+.moment--dawn-dark .moment__title {
+  text-shadow:
+    0 2px 18px rgba(6, 8, 14, 0.6),
+    0 0 46px rgba(6, 8, 14, 0.42),
+    0 0 90px rgba(6, 8, 14, 0.25);
+}
+.moment--dawn-dark .moment__script, .moment--dawn-dark .moment__body {
+  text-shadow: 0 1px 12px rgba(6, 8, 14, 0.55), 0 0 30px rgba(6, 8, 14, 0.35);
+}
+/* dust motes: one canvas per section, animates only while in view */
+.dust-canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+/* cursor glow: huge soft halo, tinted per theme via --glow-rgb (chrome link) */
+.cursor-glow {
+  position: fixed; top: 0; left: 0; width: 640px; height: 640px; border-radius: 50%;
+  z-index: 6; pointer-events: none; opacity: 0;
+  transition: opacity 0.9s ease;
+  background: radial-gradient(circle, rgba(var(--glow-rgb, 255, 250, 238), 0.5) 0%, transparent 62%);
+  mix-blend-mode: soft-light;
+}
+/* sun pulse trail: fading motes dropped along the arc as the sun travels */
+.timeline-nav__pulse {
+  fill: currentColor; opacity: 0.55; pointer-events: none;
+  transform-box: fill-box; transform-origin: center;
+  animation: nav-pulse 1.7s ease-out forwards;
+}
+@keyframes nav-pulse {
+  from { opacity: 0.55; transform: scale(1); }
+  to { opacity: 0; transform: scale(2.4); }
+}
+/* title develop: section titles sharpen from blur as they reveal */
+.fx-develop .moment__title.reveal {
+  filter: blur(8px);
+  transition: opacity 0.9s ease, transform 0.9s var(--ease-sig), filter 0.9s ease;
+}
+.fx-develop .moment__title.reveal.is-inview { filter: none; }
+/* collage fragments: ultra-slow independent drift layered over parallax
+   (starts only after the reveal completes, so the entrance stays intact) */
+.fx-drift .moment__img--frag-0.reveal.is-inview { animation: frag-drift-0 15s ease-in-out 1.4s infinite; }
+.fx-drift .moment__img--frag-1.reveal.is-inview { animation: frag-drift-1 18s ease-in-out 1.5s infinite; }
+.fx-drift .moment__img--frag-2.reveal.is-inview { animation: frag-drift-2 13s ease-in-out 1.6s infinite; }
+.fx-drift .moment__img--frag-3.reveal.is-inview { animation: frag-drift-3 21s ease-in-out 1.7s infinite; }
+.fx-drift .moment__img--frag-4.reveal.is-inview { animation: frag-drift-4 16s ease-in-out 1.8s infinite; }
+.fx-drift .moment__img--frag-5.reveal.is-inview { animation: frag-drift-5 19s ease-in-out 1.9s infinite; }
+@keyframes frag-drift-0 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, -7px); } }
+@keyframes frag-drift-1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-6px, 5px); } }
+@keyframes frag-drift-2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(4px, 6px); } }
+@keyframes frag-drift-3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-7px, -4px); } }
+@keyframes frag-drift-4 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -5px); } }
+@keyframes frag-drift-5 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-4px, 7px); } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-develop .moment__title.reveal { filter: none; transition: none; }
+  .timeline-nav__pulse { animation: none; opacity: 0; }
+  .cursor-glow { transition: none; }
+}
+
+/* scroll-linked chrome: when useChromeLink drives --chrome-* vars every
+   frame, the per-moment color transitions must not lag behind */
+.chrome-linked .site-header, .chrome-linked .timeline-nav { transition: none; }
+
+.moment__content {
+  position: relative; z-index: 3; max-width: 640px; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.moment__content--left { text-align: left; align-items: flex-start; }
+.moment__script { font-family: var(--script-font); font-size: clamp(2.4rem, 3.4vw, 3rem); line-height: 1.5; }
+.moment__title {
+  font-family: var(--text-font); font-weight: 400; font-size: clamp(28px, 2.8vw, 40px);
+  letter-spacing: -0.4px; text-transform: uppercase; line-height: 1.2;
+  margin-top: 18px;
+}
+/* fitted title: explicit width-balanced lines (see lib/fitLines + MomentCopy) */
+.moment__title-line { display: block; }
+.moment__body {
+  font-size: 17px; font-weight: 400; letter-spacing: normal; line-height: 1.55;
+  max-width: 480px; margin-top: 34px;
+}
+.moment__content--left .moment__body { max-width: 46ch; }
+.moment__cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 24px; border-radius: 4px;
+  font-size: 16px; font-weight: 400; letter-spacing: normal;
+  margin-top: 26px;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.moment__cta:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18); }
+.moment__cta-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: cta-pulse 2.4s ease-in-out infinite; }
+@keyframes cta-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.45); opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .moment__cta-dot { animation: none; }
+}
+
+/* images: figure = reveal, frame = rotation + clip, px = parallax, img = hover zoom */
+.moment__img { position: absolute; z-index: 1; }
+.moment__img-frame { width: 100%; height: 100%; overflow: hidden; }
+/* px layer is taller than the frame so ±8–16px parallax never exposes edges */
+.moment__img-px { width: 100%; height: 118%; margin-top: -9%; will-change: transform; }
+.moment__img img, .moment__img .img-fallback {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.moment__img:hover img { transform: scale(1.04); }
+.moment__caption { padding-top: 10px; font-size: 12.5px; letter-spacing: 0.05em; line-height: 1.55; opacity: 0.72; }
+
+/* ---------- layout 1: ritual (pure-text ceremony) ---------- */
+.moment--ritual .moment__content { max-width: 920px; }
+.moment--ritual .moment__script { font-size: clamp(2.6rem, 4vw, 3.6rem); }
+.moment--ritual .moment__script::after {
+  content: ''; display: block; width: 72px; height: 1px; margin: 14px auto 0;
+  background: currentColor; opacity: 0.4;
+}
+.moment--ritual .moment__title {
+  font-size: clamp(42px, 6vw, 88px); font-weight: 300; letter-spacing: -0.01em;
+  line-height: 1.08; max-width: 16ch; margin-top: 26px;
+}
+.moment--ritual .moment__body { font-size: 18px; max-width: 520px; margin-top: 38px; }
+
+/* ---------- layout 2: immersive (full-bleed photo, floating copy) ---------- */
+.moment--immersive { align-items: flex-end; justify-content: flex-start; }
+.moment__img--bg { inset: -8% 0; z-index: 1; }
+.moment__img--bg .moment__img-frame { position: absolute; inset: 0; }
+.moment__img--bg img { animation: ken-burns 18s ease-in-out infinite alternate; }
+@keyframes ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .moment__img--bg img { animation: none; }
+}
+.moment__scrim {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  /* keeps copy legible over the photograph, then steps aside so the
+     outgoing blend zone can close the section with a clean color edge */
+  background: linear-gradient(180deg, rgba(24, 18, 12, 0.04) 30%, rgba(24, 18, 12, 0.34) 72%, transparent 100%);
+}
+.moment--immersive .moment__content {
+  max-width: 540px; margin: 0 0 3vh 5vw;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 40px 44px 44px;
+  box-shadow: 0 24px 60px rgba(24, 18, 12, 0.22);
+}
+.moment__img--inset {
+  right: 6vw; bottom: calc(var(--arc-clear) + 5vh); z-index: 3; width: 204px;
+  background: var(--panel); padding: 10px 10px 12px;
+  box-shadow:
+    0 18px 44px rgba(24, 18, 12, 0.26),
+    inset 0 1px 0 rgba(255, 252, 244, 0.55);
+}
+.moment__img--inset .moment__img-frame { height: 236px; }
+.moment__img--inset .moment__caption { padding-top: 9px; }
+
+/* ---------- layout 3: collage (fragments on an invisible diagonal axis) ---------- */
+/* The axis runs top-left → bottom-right through the copy block; sizes
+   alternate along it, two off-axis counterweights balance the corners.
+   All bottoms clear the arc band via max(%, --arc-clear). */
+.moment--collage .moment__content { max-width: 470px; }
+.moment__img--frag .moment__img-frame { box-shadow: 0 18px 44px rgba(36, 26, 12, 0.2); }
+.moment__img--frag-0 { left: 6%; top: 7%; width: 232px; }
+.moment__img--frag-0 .moment__img-frame { height: 300px; transform: rotate(-3deg); }
+.moment__img--frag-1 { left: 27%; top: 14%; width: 132px; }
+.moment__img--frag-1 .moment__img-frame { height: 170px; transform: rotate(4deg); }
+.moment__img--frag-2 { right: 6.5%; top: 9%; width: 186px; }
+.moment__img--frag-2 .moment__img-frame { height: 236px; transform: rotate(-2deg); }
+.moment__img--frag-3 { left: 9%; bottom: max(23%, calc(var(--arc-clear) + 28px)); width: 248px; }
+.moment__img--frag-3 .moment__img-frame { height: 168px; transform: rotate(2.5deg); }
+.moment__img--frag-4 { left: 63%; bottom: max(21%, calc(var(--arc-clear) + 20px)); width: 132px; }
+.moment__img--frag-4 .moment__img-frame { height: 172px; transform: rotate(-4deg); }
+.moment__img--frag-5 { right: 8%; bottom: max(25%, calc(var(--arc-clear) + 34px)); width: 168px; }
+.moment__img--frag-5 .moment__img-frame { height: 216px; transform: rotate(3deg); }
+/* frag captions render as mono hour-notes (时辰小注) */
+.moment__caption--note {
+  font-family: var(--mono-font); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; opacity: 0.62; padding-top: 8px; white-space: nowrap;
+}
+
+/* ---------- layout 4: editorial (two-column spread) ---------- */
+.moment__spread {
+  position: relative; z-index: 3; display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 5vw;
+  align-items: center; width: min(1100px, 94%);
+}
+.moment__img--main { position: relative; width: 100%; }
+.moment__img--main .moment__img-frame {
+  height: clamp(280px, min(60vh, calc(100dvh - var(--arc-clear) - 204px)), 540px);
+  box-shadow: 0 24px 60px rgba(20, 12, 20, 0.28);
+}
+.moment__img--main .moment__caption { max-width: 34ch; }
+.moment--editorial .moment__content { max-width: 520px; }
+.moment__img--secondary { z-index: 2; width: 148px; }
+.moment__img--secondary .moment__img-frame { height: 188px; box-shadow: 0 16px 40px rgba(20, 12, 20, 0.3); }
+.moment__img--secondary-0 { left: 36.5%; top: 7%; }
+.moment__img--secondary-0 .moment__img-frame { transform: rotate(-3deg); }
+.moment__img--secondary-1 { left: 40.5%; bottom: max(17%, calc(var(--arc-clear) + 12px)); }
+.moment__img--secondary-1 .moment__img-frame { transform: rotate(2.5deg); }
+
+/* ---------- layout 5: nightfall (dark close + newsletter) ---------- */
+.moment--nightfall { flex-direction: column; }
+.moment--nightfall .moment__content { max-width: 600px; }
+.moment__strip {
+  position: relative; z-index: 3; display: flex; gap: 16px; margin-top: 42px;
+  animation: strip-drift 26s ease-in-out infinite alternate;
+}
+/* moonlit, not hidden: dimmed but readable, slowly drifting */
+@keyframes strip-drift {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .moment__strip { animation: none; }
+}
+.moment__img--strip { position: relative; width: 172px; }
+.moment__img--strip .moment__img-frame { height: 118px; }
+.moment__img--strip img { filter: brightness(0.94) saturate(0.92) contrast(1.02); }
+
+/* ---------- newsletter (demo; lives in nightfall or footer fallback) ---------- */
+.newsletter {
+  position: relative; z-index: 3; margin-top: 48px;
+  display: flex; flex-direction: column; align-items: center;
+  color: inherit;
+}
+.newsletter__script { font-family: var(--script-font); font-size: clamp(2rem, 2.8vw, 2.5rem); line-height: 1.5; opacity: 0.78; }
+.newsletter__heading {
+  font-size: clamp(19px, 2.2vw, 28px); font-weight: 500; letter-spacing: 0.05em;
+  text-transform: uppercase; margin: 12px 0 26px; text-align: center;
+}
+.newsletter__form {
+  display: flex; width: min(420px, 100%);
+  background: rgba(255, 255, 255, 0.94); border-radius: 999px; overflow: hidden;
+  box-shadow: 0 14px 40px rgba(10, 12, 20, 0.2);
+}
+.newsletter__form input {
+  flex: 1; border: 0; outline: 0; background: transparent; color: #2a2a2a;
+  padding: 14px 22px; font-family: inherit; font-size: 14px; min-width: 0;
+}
+.newsletter__form input::placeholder { color: #8a8175; }
+.newsletter__form button {
+  padding: 14px 26px; background: var(--nl-bg, #2a2a2a); color: var(--nl-ink, #f5efe3);
+  font-size: 13px; font-weight: 500; letter-spacing: 0.04em; border-radius: 999px; margin: 4px;
+  transition: background 0.25s, transform 0.25s;
+}
+.newsletter__form button:hover { filter: brightness(0.85); transform: translateY(-1px); }
+.newsletter__success { font-size: 15px; letter-spacing: 0.04em; line-height: 1.7; max-width: 380px; text-align: center; }
+.newsletter__error { margin-top: 12px; font-size: 12.5px; color: #e3a793; }
+
+/* ---------- footer (slim closing bar; links row clears the arc river) ---------- */
+.site-footer { position: relative; background: #1d2434; color: #ece4d4; padding: 60px 24px calc(var(--arc-clear) + 56px); text-align: center; }
+.site-footer__blend { position: absolute; top: 0; left: 0; right: 0; z-index: 0; pointer-events: none; }
+.site-footer--with-newsletter { padding-top: 100px; }
+.site-footer--with-newsletter .newsletter { margin: 0 0 48px; }
+.site-footer__inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.site-footer__tagline { font-size: 13px; letter-spacing: 0.08em; color: #a9b1c4; text-transform: uppercase; }
+.site-footer__social { display: flex; gap: 18px; margin-top: 20px; }
+.site-footer__social .social-link--mark:hover { background: rgba(236, 228, 212, 0.15); }
+.site-footer__bottom {
+  width: 100%; margin-top: 44px; padding-top: 20px;
+  border-top: 1px solid rgba(236, 228, 212, 0.16);
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  font-size: 12px; color: #a9b1c4;
+}
+.site-footer__bottom nav { display: flex; gap: 22px; }
+.footer-link { position: relative; }
+.footer-link::after {
+  content: ''; position: absolute; left: 0; bottom: -3px; height: 1px; width: 0;
+  background: currentColor; transition: width 0.3s ease;
+}
+.footer-link:hover::after { width: 100%; }
+
+/* ---------- image fallback / config error ---------- */
+.img-fallback {
+  width: 100%; height: 100%; min-height: 120px;
+  background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06) 12px, rgba(0, 0, 0, 0.03) 12px, rgba(0, 0, 0, 0.03) 24px);
+  display: flex; align-items: center; justify-content: center;
+  color: inherit; opacity: 0.7; font-size: 12px; text-align: center; padding: 12px;
+}
+.config-error { max-width: 760px; margin: 80px auto; padding: 0 24px; font-family: var(--text-font); }
+.config-error h1 { color: #b3402e; margin-bottom: 20px; }
+.config-error li { margin-bottom: 10px; font-size: 14px; }
+.config-error code { background: #eee; padding: 2px 6px; border-radius: 4px; }
+
+/* ---------- short landscape viewports: compact rhythm keeps copy off the arc ---------- */
+@media (max-height: 780px) and (min-width: 901px) {
+  .moment { padding-top: 92px; padding-bottom: calc(var(--arc-clear) + 12px); }
+  .moment__script { line-height: 1.35; }
+  .moment__title { margin-top: 12px; }
+  .moment__body { margin-top: 22px; }
+  .moment__cta { margin-top: 18px; }
+  .moment--ritual .moment__title { font-size: clamp(38px, 5vw, 64px); }
+  .moment--ritual .moment__body { margin-top: 26px; }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  :root { --arc-clear: 96px; }
+  :root[data-nav-variant='dock'] { --arc-clear: 76px; }
+  .site-header { padding: 16px 20px; }
+  .site-header__logo { font-size: 24px; }
+  .site-header__social { gap: 16px; }
+  .social-link__handle { display: none; }
+  .social-poem__handle { display: none; }
+
+  /* social edge tag: collapses to a small ribbon above the dock */
+  .social-edge {
+    right: 12px; top: auto; bottom: calc(60px + 22px); transform: none;
+    gap: 9px; padding: 10px 6px;
+  }
+  .social-edge__rule { height: 30px; }
+
+  .timeline-nav--arc { height: 96px; }
+  .timeline-nav--arc .timeline-nav__label { font-size: 10px; letter-spacing: 0.12em; }
+  .timeline-nav--arc .timeline-nav__markers a { width: 30px; height: 30px; }
+
+  /* sundial dock on mobile: idle stops show a first-letter mark, active keeps the full name */
+  .sundial-dock__inner { height: 54px; }
+  .sundial-dock .timeline-nav__markers a { padding: 10px 2px 6px; gap: 4px; }
+  .sundial-dock .timeline-nav__label { font-size: 11px; letter-spacing: 0.08em; }
+  .sundial-dock .timeline-nav__markers a:not(.is-active) .timeline-nav__label { display: none; }
+  .sundial-dock .timeline-nav__markers a:not(.is-active) .sundial-dock__short { display: inline-block; }
+  /* the active full name must never re-balance the flex cells (a long label
+     like "GOLDEN HOUR" would shift every stop) — it floats out of flow,
+     centered under its ring, overflowing symmetrically if wider than the cell */
+  .sundial-dock .timeline-nav__markers li { min-width: 0; }
+  .sundial-dock .timeline-nav__label {
+    position: absolute; top: 27px; left: 50%;
+    transform: translateX(-50%) scale(0.94); transform-origin: center top;
+  }
+  .sundial-dock .timeline-nav__markers a:hover .timeline-nav__label,
+  .sundial-dock .timeline-nav__markers a:focus-visible .timeline-nav__label { transform: translateX(-50%) scale(0.98) translateY(-1px); }
+  .sundial-dock .timeline-nav__markers a.is-active .timeline-nav__label { transform: translateX(-50%) scale(1.06); }
+  .sundial-dock__rail { top: 14px; }
+  .sundial-dock__sun { top: 15px; width: 10px; height: 10px; }
+  .sundial-dock__pulse { top: 15px; }
+
+  .moment { padding: 96px 20px calc(var(--arc-clear) + 30px); }
+  .moment__content { max-width: 100%; }
+
+  .moment--ritual .moment__title { font-size: clamp(34px, 9.4vw, 54px); }
+
+  .moment--immersive .moment__content {
+    max-width: 100%; margin: 0; padding: 26px 22px 28px;
+  }
+  .moment__img--inset { display: none; }
+
+  .moment--collage .moment__content { max-width: 88%; }
+  .moment__img--frag { opacity: 0.5; }
+  .moment__img--frag-0 { left: 2%; top: 6%; width: 118px; }
+  .moment__img--frag-0 .moment__img-frame { height: 154px; }
+  .moment__img--frag-2 { right: 2%; top: 8%; width: 106px; }
+  .moment__img--frag-2 .moment__img-frame { height: 136px; }
+  .moment__img--frag-3 { left: 3%; bottom: max(19%, calc(var(--arc-clear) + 24px)); width: 130px; }
+  .moment__img--frag-3 .moment__img-frame { height: 90px; }
+  .moment__img--frag-5 { right: 3%; bottom: max(22%, calc(var(--arc-clear) + 30px)); width: 98px; }
+  .moment__img--frag-5 .moment__img-frame { height: 126px; }
+  .moment__img--frag-1, .moment__img--frag-4 { display: none; }
+  .moment__caption--note { display: none; }
+
+  .moment__spread { grid-template-columns: 1fr; gap: 30px; width: 100%; }
+  .moment__img--main .moment__img-frame { height: 38vh; }
+  .moment__img--secondary { display: none; }
+
+  .moment__strip { gap: 10px; margin-top: 34px; }
+  .moment__img--strip { width: min(21vw, 110px); }
+  .moment__img--strip .moment__img-frame { height: 92px; }
+  .newsletter { margin-top: 38px; }
+  .newsletter__form { width: 100%; }
+
+  .site-footer__bottom { flex-wrap: wrap; justify-content: center; }
+}
